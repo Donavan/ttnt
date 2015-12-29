@@ -3,8 +3,8 @@ require 'ttnt/metadata'
 
 class MetaDataTest < TTNT::TestCase::FizzBuzz
   def setup
-    @storage_file = "#{@repo.workdir}/.ttnt"
-    File.delete(@storage_file)
+    @storage_file =  File.join @repo.workdir , '.ttnt'
+    File.delete(@storage_file) if File.exists? @storage_file
 
     @metadata = TTNT::MetaData.new(@repo)
     @name = 'anchored_sha'

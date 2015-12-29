@@ -33,7 +33,7 @@ module TTNT
       def test_fizz_test_is_selected
         @repo.checkout('change_fizz')
         output = rake('ttnt:test:run')
-        assert_match '1 runs, 1 assertions, 1 failures', output[:stdout]
+        assert_match /1\s+(runs|tests),\s+1\s+assertions,\s+1\s+failures/, output[:stdout]
       end
 
       def test_tests_are_selected_based_on_changes_in_current_working_tree
@@ -42,7 +42,7 @@ module TTNT
         fizzbuzz_file = "#{@repo.workdir}/fizzbuzz.rb"
         File.write(fizzbuzz_file, File.read(fizzbuzz_file).gsub(/"buzz"$/, '"bar"'))
         output = rake('ttnt:test:run')
-        assert_match '2 runs, 2 assertions, 2 failures', output[:stdout]
+        assert_match /2\s+(runs|tests),\s+2\s+assertions,\s+2\s+failures/, output[:stdout]
       end
 
       def test_isolated
@@ -74,7 +74,7 @@ module TTNT
         File.write(fizz_test, File.read(fizz_test).gsub("require_relative '\.", "require_relative '.."))
         FileUtils.mv(fizz_test, './test/fizz_test.rb')
         output = rake('ttnt:test:run')
-        assert_match '1 runs, 3 assertions, 0 failures', output[:stdout]
+        assert_match /1\s+(runs|tests),\s+3\s+assertions,\s+0\s+failures/, output[:stdout]
       end
 
       def test_storage_file_resides_with_rakefile
@@ -106,7 +106,7 @@ module TTNT
         double_file = "double.rb"
         File.write(double_file, File.read(double_file).gsub(/# ipsum$/, 'n *= 2'))
         output = rake('ttnt:test:run')
-        assert_match '1 runs, 1 assertions, 1 failures', output[:stdout]
+        assert_match /1\s+(runs|tests),\s+1\s+assertions,\s+1\s+failures/, output[:stdout]
       end
     end
 
@@ -120,7 +120,7 @@ module TTNT
 
         fn = 'fizz_detectable.rb'
         File.write(fn, File.read(fn).gsub(/n % 3 == 0$/, "n % 3 == 1"))
-        output = rake('ttnt:test:run')
+        output = rake(/ttnt:test:run|Failed name = 'test_fizz'/)
         assert_match "Failure:\nTestFizz#test_fizz", output[:stdout]
       end
     end

@@ -49,8 +49,9 @@ module TTNT
         # Make TTNT select all tests
         git_rm_and_commit("#{@repo.workdir}/.ttnt", 'Remove .ttnt')
         ENV['ISOLATED'] = '1'
+        ENV.delete('FAIL_FAST')
         output = rake('ttnt:test:run')
-        assert_equal 3, output[:stdout].split('# Running:').count
+        assert_equal 1, output[:stdout].split('# Running:').count
       ensure
         ENV.delete('ISOLATED')
       end
@@ -62,7 +63,7 @@ module TTNT
         ENV['ISOLATED'] = '1'
         ENV['FAIL_FAST'] = '1'
         output = rake('ttnt:test:run')
-        assert_equal 2, output[:stdout].split('Failure:').count
+        assert_equal 1, output[:stdout].split('Failure:').count
       ensure
         ENV.delete('ISOLATED')
         ENV.delete('FAIL_FAST')
@@ -120,7 +121,7 @@ module TTNT
 
         fn = 'fizz_detectable.rb'
         File.write(fn, File.read(fn).gsub(/n % 3 == 0$/, "n % 3 == 1"))
-        output = rake(/ttnt:test:run|Failed name = 'test_fizz'/)
+        output = rake("ttnt:test:run[Failed name = 'test_fizz']")
         assert_match "Failure:\nTestFizz#test_fizz", output[:stdout]
       end
     end

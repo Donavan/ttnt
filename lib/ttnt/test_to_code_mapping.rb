@@ -49,7 +49,7 @@ module TTNT
     # @param file [String] file name which might have effects on some tests
     # @param lineno [Integer] line number in the file which might have effects on some tests
     # @return [Set] a set of test files which might be affected by the change in file at lineno
-    def get_tests(file:, lineno:)
+    def get_tests(file, lineno)
       tests = Set.new
       @mapping.each do |test, spectra|
         lines = spectra[file]
@@ -89,9 +89,7 @@ module TTNT
     # @param spectra [Hash] spectra data
     # @return [Hash] spectra whose keys (file names) are normalized
     def normalize_paths(spectra)
-      spectra.map do |filename, lines|
-        [normalized_path(filename), lines]
-      end.to_h
+      Hash[spectra.map { |k, v| [normalized_path(k), v] }]
     end
 
     # Filter out the files outside of the target project using file path.

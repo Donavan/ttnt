@@ -89,7 +89,7 @@ module TTNT
       end
 
       target_lines.each do |line|
-        @tests += mapping.get_tests(file: file, lineno: line)
+        @tests += mapping.get_tests(file, line)
       end
     end
 

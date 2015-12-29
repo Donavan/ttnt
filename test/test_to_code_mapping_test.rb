@@ -4,7 +4,9 @@ require 'ttnt/test_to_code_mapping'
 class TestToCodeMappingTest < TTNT::TestCase::FizzBuzz
   def setup
     # clean up generated .ttnt files
-    File.delete("#{@repo.workdir}/.ttnt")
+    storage_file =  File.join @repo.workdir , '.ttnt'
+    File.delete(storage_file) if File.exists? storage_file
+
     @test_to_code_mapping = TTNT::TestToCodeMapping.new(@repo)
     @test_file = 'fizz_test.rb'
     # Not a valid coverage, but an example
@@ -21,18 +23,18 @@ class TestToCodeMappingTest < TTNT::TestCase::FizzBuzz
 
   def test_get_tests
     assert_equal Set.new([@test_file]),
-      @test_to_code_mapping.get_tests(file: 'fizzbuzz.rb', lineno: 3),
+      @test_to_code_mapping.get_tests('fizzbuzz.rb', 3),
       'It should select tests if the specified line is between the topmost executed line and downmost executed line in coverage'
     assert_equal Set.new([]),
-      @test_to_code_mapping.get_tests(file: 'fizzbuzz.rb', lineno: 9),
+      @test_to_code_mapping.get_tests('fizzbuzz.rb', 9),
       'It should not select tests if the specified line is not between the topmost executed line and downmost executed line in coverage'
     assert_equal Set.new([@test_file]),
-      @test_to_code_mapping.get_tests(file: 'fizzbuzz.rb', lineno: 2)
+      @test_to_code_mapping.get_tests('fizzbuzz.rb', 2)
   end
 
   def test_select_code_files
     @test_to_code_mapping.select_code_files!([])
     assert_equal Set.new([]),
-      @test_to_code_mapping.get_tests(file: 'fizzbuzz.rb', lineno: 3)
+      @test_to_code_mapping.get_tests('fizzbuzz.rb', 3)
   end
 end

@@ -1,6 +1,5 @@
 RSpec::Support.require_rspec_core 'formatters/base_formatter'
 require 'ttnt/test_to_code_mapping'
-require 'ttnt/metadata'
 require 'rugged'
 
 module TTNT
@@ -26,22 +25,11 @@ module TTNT
       end
 
       def record_example(example)
-        #binding.pry;2
         @mapping.append_from_coverage("RSPEC:#{example.id}", SimpleCov.result.original_result)
-        #@mapping.write!
         @tests << example.id
-
-        puts "Recorded coverage for #{example.id}"
       end
 
       def close(_example)
-        metadata = TTNT::MetaData.new(@repo)
-        metadata['anchored_commit'] = @repo.head.target_id
-        metadata.write!
-
-        binding.pry;2
-        #mapping = TestToCodeMapping.new(@repo)
-        #@mapping.select_code_files!(@tests)
         @mapping.write!
       end
     end

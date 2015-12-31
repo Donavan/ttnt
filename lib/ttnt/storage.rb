@@ -14,6 +14,7 @@ module TTNT
     def initialize(repo, sha = nil)
       @repo = repo
       @sha = sha
+      FileUtils.mkdir_p "#{TTNT.root_dir}/.ttnt"
     end
 
     # Read data from the storage in the given section.
@@ -21,7 +22,7 @@ module TTNT
     # @param section [String]
     # @return [Hash]
     def read(section)
-      str = read_storage_content
+      str = read_storage_content(section)
 
       if str.length > 0
         JSON.parse(str)[section] || {}
@@ -36,8 +37,8 @@ module TTNT
     # @param section [String]
     # @param value [Hash]
     def write!(section, value)
-      raise 'Data cannot be written to the storage back in git history' unless @sha.nil?
-      File.open(filename, File::RDWR|File::CREAT, 0644) do |f|
+      #raise 'Data cannot be written to the storage back in git history' unless @sha.nil?
+      File.open(filename(section), File::RDWR|File::CREAT, 0644) do |f|
         f.flock(File::LOCK_EX)
         str = f.read
         data = str.length > 0 ? JSON.parse(str) : {}
@@ -51,17 +52,17 @@ module TTNT
 
     private
 
-    def filename
-      "#{TTNT.root_dir}/.ttnt"
+    def filename(section)
+      "#{TTNT.root_dir}/.ttnt/#{section}"
     end
 
-    def filename_from_repository_root
-      filename.gsub(@repo.workdir, '')
+    def filename_from_repository_root(section)
+      filename(section).gsub(@repo.workdir, '')
     end
 
-    def storage_file_oid
+    def storage_file_oid(section)
       tree = @repo.lookup(@sha).tree
-      paths = filename_from_repository_root.split(File::SEPARATOR)
+      paths = filename_from_repository_root(section).split(File::SEPARATOR)
       dirs, filename = paths[0...-1], paths[-1]
       dirs.each do |dir|
         obj = tree[dir]
@@ -73,15 +74,15 @@ module TTNT
       obj[:oid]
     end
 
-    def read_storage_content
+    def read_storage_content(section)
       if @sha
-        if oid = storage_file_oid
+        if oid = storage_file_oid(section)
           @repo.lookup(oid).content
         else
           '' # Storage file is not committed for the commit of given sha
         end
       else
-        File.exist?(filename) ? File.read(filename) : ''
+        File.exist?(filename(section)) ? File.read(filename(section)) : ''
       end
     end
   end

@@ -3,6 +3,7 @@ require 'ttnt/storage'
 module TTNT
   class MetaData
     STORAGE_SECTION = 'meta'
+    attr_reader :data
 
     # @param repo [Rugged::Repository]
     # @param sha [String] sha of commit which metadata is read from.
